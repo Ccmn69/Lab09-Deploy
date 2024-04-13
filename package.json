@@ -29,6 +29,7 @@
     "http-errors": "^2.0.0",
     "middleware-http-errors": "^0.1.2",
     "morgan": "^1.10.0",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "vercel": "^34.0.0"
   }
 }
