@@ -1,6 +1,7 @@
-import request, { HttpVerb, Response } from 'sync-request-curl';
+// import request, { HttpVerb, Response } from 'sync-request-curl';
+import request, { HttpVerb, Response } from 'sync-request';
 import { port, url } from './config.json';
-// import { DEPLOYED_URL } from './submission';
+import { DEPLOYED_URL } from './submission';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -58,7 +59,7 @@ const requestHelper = (method: HttpVerb, path: string, payload: object) => {
     json = payload;
   }
   // TODO: change SERVER_URL to DEPLOYED_URL
-  const res = request(method, SERVER_URL + path, { qs, json, timeout: 20000 });
+  const res = request(method, DEPLOYED_URL + path, { qs, json, timeout: 20000 });
   return parseResponse(res, path);
 };
 
@@ -157,3 +158,20 @@ describe('/view/names', () => {
     expect(viewNames()).toEqual({ names: ['Tam', 'Rani', 'Emily', 'Brendan']});
   });
 });
+
+describe('Deployed URL Sanity check', () => {
+  test('Looks for exactly one zID in the URL', () => {
+    const zIDs = (DEPLOYED_URL.match(/z[0-9]{7}/g) || []);
+
+    // URL Sanity test
+    expect(zIDs.length).toEqual(1);
+    expect(DEPLOYED_URL.startsWith('http')).toBe(true);
+    expect(DEPLOYED_URL.endsWith('/')).toBe(false);
+
+    if (process.env.GITLAB_USER_LOGIN) {
+      // Pipeline CI test
+      expect(zIDs[0]).toEqual(process.env.GITLAB_USER_LOGIN);
+    }
+  });
+})
+
