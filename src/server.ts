@@ -9,6 +9,20 @@ import errorHandler from 'middleware-http-errors';
 import { DATABASE_FILE, setData, addName, viewNames, clear } from './names';
 import { port, url } from './config.json';
 
+import { createClient } from '@vercel/kv';
+
+// Replace this with your API_URL
+// E.g. https://large-poodle-44208.kv.vercel-storage.com
+const KV_REST_API_URL="https://stirred-stork-42793.upstash.io";
+// Replace this with your API_TOKEN
+// E.g. AaywASQgOWE4MTVkN2UtODZh...
+const KV_REST_API_TOKEN="AacpASQgNWQ0ZWUzNmUtZWQwZC00NDc3LTg2ZDgtOTUxYTU3OTQ4NTIyZjJlNjE5ZTU4YzY2NDhlM2FjMzg4YjM0NmQ5NGFlZmE=";
+
+const database = createClient({
+  url: KV_REST_API_URL,
+  token: KV_REST_API_TOKEN,
+});
+
 const PORT: number = parseInt(process.env.PORT || port);
 const SERVER_URL = `${url}:${PORT}`;
 
@@ -37,6 +51,17 @@ app.get('/view/names', (req: Request, res: Response) => {
 
 app.delete('/clear', (req: Request, res: Response) => {
   res.json(clear());
+});
+
+app.get('/data', async (req: Request, res: Response) => {
+  const data = await database.hgetall("data:names");
+  res.status(200).json(data);
+});
+
+app.put('/data', async (req: Request, res: Response) => {
+  const { data } = req.body;
+  await database.hset("data:names", { data });
+  return res.status(200).json({});
 });
 
 app.use(errorHandler());
