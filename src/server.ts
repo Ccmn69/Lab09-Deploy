@@ -37,6 +37,17 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: "Welcome to Lab09 Deploy Server's root URL!" });
 });
 
+app.get('/data', async (req: Request, res: Response) => {
+  const data = await database.hgetall("data:names");
+  res.status(200).json(data);
+});
+
+app.put('/data', async (req: Request, res: Response) => {
+  const { data } = req.body;
+  await database.hset("data:names", { data });
+  return res.status(200).json({});
+});
+
 app.get('/echo/echo', (req: Request, res: Response) => {
   res.json(echo(req.query.message as string));
 });
@@ -51,17 +62,6 @@ app.get('/view/names', (req: Request, res: Response) => {
 
 app.delete('/clear', (req: Request, res: Response) => {
   res.json(clear());
-});
-
-app.get('/data', async (req: Request, res: Response) => {
-  const data = await database.hgetall("data:names");
-  res.status(200).json(data);
-});
-
-app.put('/data', async (req: Request, res: Response) => {
-  const { data } = req.body;
-  await database.hset("data:names", { data });
-  return res.status(200).json({});
 });
 
 app.use(errorHandler());
